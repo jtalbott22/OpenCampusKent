@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load eb eb_filter %}
+
+{% block title %}News types{% endblock %}
+
+{% block content %}
+<div class="container row" id="content">
+  {% for schemabunch in schema_list %}
+<div class="row">
+  <a class="schema_list_item" href="{{ schemabunch.schema.url }}"><h2 class="schema_list_item_news red" style="color:#FF4747"><img src="{{ schemabunch.schema.map_icon_url }}" style="float:left; margin-right:10px;"/>{{ schemabunch.schema.plural_name|capfirst }}</h2></a>
+	<p>{{ schemabunch.schema.short_description }} <a href="{{ schemabunch.schema.url }}">More info&hellip;</a></p>
+		<ul class="location_type_list">
+			{% if schemabunch.schema.allow_charting %}{% for schemafield in schemabunch.schemafield_list %}
+			  <li><a href="{% filter_url  schemabunch.schema +schemafield %}">By {{ schemafield.browse_by_title }}</a></li>
+			{% endfor %}
+			{% endif %}
+			{% for locationtype in browsable_locationtype_list %}
+			  <li><a href="{% filter_url schemabunch.schema +'location' locationtype %}">By {{ locationtype.name.title }}</a></li> 
+			{% endfor %}
+			{% if schemabunch.schema.allow_charting %}<li><a href="{% filter_url schemabunch.schema %}">Custom filter</a></li>{% endif %}
+		</ul>
+	<!-- {% if forloop.counter0|divisibleby:"2" %} {% else %} </div><div class="row">{% endif %} -->
+	</div>
+  {% endfor %}
+</div><!--/ #content-->
+{% endblock %}

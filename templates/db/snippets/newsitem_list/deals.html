@@ -1,0 +1,62 @@
+{# This snippet requires these variables: schema, newsitem_list #}
+{% load twitterize %}
+{% load twittertag %}
+<style>
+.tweets {
+	margin-bottom:0px !important;
+}
+.tweets .span1, .tweets .span6 {
+	margin-top: 10px;
+}
+</style>
+{% autoescape off %}
+<div class="news-schema-content">
+		<div class="row mainContent">
+			<div class="span7 happening">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Campus</span> <small>latest deals</small></h1>
+				{% for newsitem in newsitem_list %}
+				<div class="home-feed row tweets">
+					<div class="span1">
+						<p class="latest-schema"><img class="schema-icon" src="{{ newsitem.schema.map_icon_url }}" alt="Deals icon"></p>
+						<p class="latest-month">{{ newsitem.item_date|date:"M" }}</p>
+						<p class="latest-day">{{ newsitem.item_date|date:"d" }}</p>
+					</div>
+
+					<div class="span6">
+						<h4 style="padding-bottom:4px;">{{ newsitem.title|truncatewords_html:10|urlize|twitterize|twittertag }}</h4>
+
+						<!--
+						{% if newsitem.attributes.photo_href %}
+							<a class="pull-left" href="{{newsitem.url}}" target="_blank" rel="nofollow" style="padding-right:4px;"><img width="75" height="75" class="thumbnail" src="{{ newsitem.attributes.photo_href }}" alt=""></a>
+						{% endif %}
+						-->
+
+						{% if newsitem.description %}
+						<p>{{ newsitem.description|urlize|twitterize|twittertag}}
+							<span class="pull-right">
+								<a href="https://twitter.com/{{ newsitem.attributes.author }}" class="twitter-follow-button" data-show-count="false">Follow @{{ newsitem.attributes.author }}</a>
+								<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+							</span>
+						</p>
+						{% endif %}
+					</div>
+				</div>
+                <hr>
+				{% endfor %}
+			</div>
+
+			<div class="span4">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Deals</span> <small>newest deal</small></h1>
+                {% for newsitem in newsitem_list %}
+                {% if forloop.first %}
+                <h4 style="padding-bottom:4px;">{{ newsitem.title|truncatewords_html:10|urlize|twitterize|twittertag }}</h4>
+                <p>{% if newsitem.description %}{{ newsitem.description|urlize|twitterize|twittertag}}{% endif %}</p>
+                {% endif %}
+                {% endfor %}
+			</div>
+
+		</div>
+
+		<hr>
+		</div>
+{% endautoescape %}

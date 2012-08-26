@@ -1,0 +1,61 @@
+{% extends "base.html" %}{% comment %} -*- mode: django-html; tab-width: 4 -*- {% endcomment %}
+{% load eb humanize mapping %}
+
+{% block fulltitle %}OpenCampus{% endblock %}
+
+{% block content %}
+{% load twitterize %}
+{% load twittertag %}
+{% autoescape off %}
+
+		<div class="row container">
+			<div class="span7 happening">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Feed</span> <small>{{ todayDate|date:"l F d, Y" }}</small></h1>
+				{% for newsitem in newsItems %}
+				<div class="home-feed row">
+					<div class="span1">
+						<p class="latest-schema"><a href="{{ newsitem.item_url}}">{% map_icon_img newsitem.schema %}</a></p>
+						<p class="latest-month">{{ newsitem.item_date|date:"M" }}</p>
+						<p class="latest-day">{{ newsitem.item_date|date:"d" }}</p>
+					</div>
+
+					<div class="span6">
+						<h4><a href="{{ newsitem.item_url}}">{{ newsitem.title|truncatewords_html:10|urlize|twitterize|twittertag }}</a></h4>
+
+						{% if newsitem.attributes.photo_href %}
+							<a class="pull-left" href="{{ newsitem.item_url }}" rel="nofollow"><img width="75" height="75" class="thumbnail" src="{{ newsitem.attributes.photo_href }}" alt=""></a>
+						{% endif %}
+
+						<p>{% if newsitem.description %}{{ newsitem.description|truncatewords_html:25|urlize|twitterize|twittertag}}{% endif %}</p>
+
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+
+			<div class="span4">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">View</span> <small>pic of the day</small></h1>
+				<div id="myCarousel" class="carousel">
+					<!-- Carousel items -->
+					<div class="carousel-inner">
+						{% for photoitem in photoItems %}
+							<div class="item{% if forloop.first %} active {% endif %}">
+								<img src="{{ photoitem.attributes.photo_href }}" width="100%" alt="">
+								<div class="carousel-caption">
+									<h4>{{ photoitem.title }}</h4>
+									<p>{{ photoitem.description }}</p>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+					<!-- Carousel nav -->
+					<a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+					<a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+				</div>
+			</div>
+
+		</div>
+
+		<hr>
+{% endautoescape %}
+{% endblock %}

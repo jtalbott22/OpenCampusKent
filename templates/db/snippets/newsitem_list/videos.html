@@ -1,0 +1,47 @@
+{# This snippet requires these variables: schema, newsitem_list #}
+{% load twitterize %}
+{% load twittertag %}
+{% autoescape off %}
+
+<div class="video-schema-content">
+		<div class="row mainContent">
+			<div class="span7 happening">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Campus</span> <small>TOP VIDEOS</small></h1>
+				{% for newsitem in newsitem_list %}
+				<div class="home-feed row">
+					<div class="span1">
+						<p class="latest-schema"><a href="{{ newsitem.item_url}}"><img class="schema-icon" src="{{ newsitem.schema.map_icon_url }}" alt="Videos icon"></a></p>
+						<p class="latest-month">{{ newsitem.item_date|date:"M" }}</p>
+						<p class="latest-day">{{ newsitem.item_date|date:"d" }}</p>
+					</div>
+
+					<div class="span6">
+						<h4 style="padding-bottom:4px;"><a href="{{ newsitem.item_url}}">{{ newsitem.title|truncatewords_html:10|urlize|twitterize|twittertag }}</a></h4>
+
+						{% if newsitem.attributes.photo_href %}
+							<a class="pull-left" href="{{ newsitem.item_url }}" rel="nofollow" style="padding-right:4px;"><img width="75" height="75" class="thumbnail" src="{{ newsitem.attributes.photo_href }}" alt=""></a>
+						{% endif %}
+
+						<p>{% if newsitem.description %}{{ newsitem.description|truncatewords_html:25|urlize|twitterize|twittertag}}{% endif %}</p>
+					</div>
+				</div>
+                <hr>
+				{% endfor %}
+			</div>
+
+			<div class="span4">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Video</span> <small>top video</small></h1>
+                {% for newsitem in newsitem_list %}
+                {% if forloop.first %}
+                <iframe width="520" height="415" src="http://www.youtube.com/embed/{{ newsitem.attributes.videoID }}" frameborder="0" allowfullscreen></iframe>
+                <p>{% if newsitem.description %}{{ newsitem.description|truncatewords_html:25|urlize|twitterize|twittertag}}{% endif %}</p>
+				<a href="{{ newsitem.item_url}}" class="pull-left">Read more >></a>
+                {% endif %}
+                {% endfor %}
+			</div>
+
+		</div>
+
+		<hr>
+</div>
+{% endautoescape %}

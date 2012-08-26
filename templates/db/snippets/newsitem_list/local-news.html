@@ -1,0 +1,18 @@
+{# This snippet requires these variables: schema, newsitem_list #}
+
+<div class="local-news row">
+	{% for newsitem in newsitem_list %}
+			<div id="newsitem-{{ newsitem.id }}" class="span3">
+				<h4><a href="{{ newsitem.item_url}}" class="url">{{ newsitem.title|truncatewords_html:20 }}</a></h4>
+				<p class="location">{{ newsitem.location_name }} - <span class="date">{{ newsitem.item_date|date:"F j, Y" }}</span></p>
+				<p class="info">{% if newsitem.description %}{{ newsitem.description|truncatewords_html:20}}{% endif %}</p>
+			</div>
+		{% if forloop.last %}
+			</div>
+		{% else %}
+			{% if forloop.counter|divisibleby:"3" %}
+				</div><div class="local-news row">
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+</div>

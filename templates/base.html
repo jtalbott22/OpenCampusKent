@@ -1,0 +1,147 @@
+{% comment %}<!-- -*- mode: django-html; tab-width: 4 -*- -->{% endcomment %}
+{% load eb mapping %}{% load django_static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="utf-8">
+	<title>OpenCampus Kent</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<!-- Le styles -->
+	<link href="/styles/bootstrap.min.css" rel="stylesheet">
+	<link href="/styles/bootstrap-responsive.css" rel="stylesheet">
+	<link href="/styles/opencampus.css" rel="stylesheet">
+
+	<!-- Le javascript -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script>var $j = $;</script>
+	<script src="/scripts/bootstrap-transition.js"></script>
+	<script src="/scripts/bootstrap-collapse.js"></script>
+	<script src="/scripts/bootstrap-dropdown.js"></script>
+	<script src="/scripts/bootstrap-carousel.js"></script>
+	<script src="/scripts/bootstrap-tooltip.js"></script>
+
+	{% block extrahead %}{% endblock extrahead %}
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+	  <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le fav and touch icons -->
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<!--
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+  </head>
+
+  <body>
+
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="http://opencampuskent.com"><b><font face="Tahoma">open</font><font face="Tahoma" color="orange">Campus</font><font face="helvetica" size="2"> KENT</font></b></a>
+				<div class="nav-collapse">
+					<ul class="nav">
+						<li><a href="http://opencampuskent.com">Home</a></li>
+						<li><a href="http://opencampuskent.com/team">Team</a></li>
+					</ul>
+					<ul class="nav pull-right">
+						<h2 id="current_weather">{{ current_weather }}&deg;</h2>
+						<img id="weather_img" src="{{ weather_img }}"/>
+					</ul>
+					<form class="navbar-search pull-right" action="{% url ebpub-search %}">
+					  <fieldset>
+						<div class="control-group">
+							<div class="controls">
+								<input type="text" class="search-query" name="q" placeholder="Search Events, Items, or Locations here...">
+								<button class="btn btn-warning search-btn" type="submit">GO!</button>
+							</div>
+						</div>
+					  </fieldset>
+					</form>
+				</div>
+			</div>
+		</div><!-- /navbar-inner -->
+	</div><!-- /navbar -->
+
+	<div id="mapwrapper" class="baseMap">
+		<script type="text/javascript">
+		{% autoescape off %}
+
+		function loadMap() {
+			var config = {{map_configuration}};
+			config.center = [{{default_lon}}, {{default_lat}}];
+			config.zoom = {{default_zoom}};
+			return new OBMap(config);
+		}
+
+		{% endautoescape %}
+		</script>
+		{% include "richmaps/richmap.html" %}
+	</div>
+
+	<a href="#" class="home-tooltip" data-rel="tooltip" title="Drag the map around or click the icons for more details!"><img src="/images/starthere.png"></a>
+
+	<div class="schema-list">
+		<div class="container row">
+			<div class="span12 schemaList">
+				{% for schemabunch in schema_list %}
+					<i class="icon"><a href="{{ schemabunch.schema.url }}">{% map_icon_img schemabunch.schema %}</a></i> <a href="{{ schemabunch.schema.url }}">{% filter capfirst %}{{ schemabunch.schema.plural_name|capfirst }}{% endfilter %}</a>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<div class="body" id="container">
+		{% block content %}{% endblock content %}
+	</div> <!-- /container -->
+
+	<div class="footer">
+		<div class="container row">
+			<div class="span12">
+				<p><a href="/about/" rel="ajax">About</a> | <a href="/policies/" rel="ajax">Policies</a> | Copyright &copy; 2012 - OpenCampus Kent</p>
+			</div>
+		</div>
+	</div>
+	<script>
+        $('a[rel$="ajax"]').click(function(e){
+			e.preventDefault();
+			var page = $(this).attr('href');
+
+			$.get(page).success(function(data){
+				$("#container").fadeOut('slow', function() {
+					$(this).html(data).fadeIn('slow');
+				})
+			});
+
+		});
+		$('.carousel').carousel();
+	$('[data-rel="tooltip"]').tooltip({
+	  placement: "left"
+	})
+	</script>
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-31161218-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+  </body>
+</html>

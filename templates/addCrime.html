@@ -1,0 +1,55 @@
+{% extends "base.html" %}{% comment %} -*- mode: django-html; tab-width: 4 -*- {% endcomment %}
+{% load eb humanize mapping %}
+
+{% block fulltitle %}OpenCampus{% endblock %}
+
+{% block content %}
+<style>
+#detailmap { display:none; }
+</style>
+<div class="row">
+	<div class="span12">
+<form class="form-horizontal" method="POST">{% csrf_token %}
+        <fieldset>
+          <legend>Add crime data</legend>
+          <div class="control-group">
+            <label class="control-label" for="title01">Title</label>
+            <div class="controls">
+              <input type="text" class="input-xlarge" id="title01" name="title">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="date01">Date</label>
+            <div class="controls">
+              <input type="date" class="input-xlarge" id="date01" name="date">
+              <p class="help-block">The date this crime was committed.</p>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="input01">Time</label>
+            <div class="controls">
+              <input type="text" class="input-xlarge" id="input01" name="time">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="input02">Location</label>
+            <div class="controls">
+              <input type="text" class="input-xlarge" id="input02" name="location" value="{{ location }}">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="textarea">Description</label>
+            <div class="controls">
+              <textarea class="input-xlarge" id="textarea" name="description" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button class="btn">Cancel</button>
+          </div>
+        </fieldset>
+      </form>
+	</div>
+</div>
+
+{% endblock %}

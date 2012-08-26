@@ -1,0 +1,47 @@
+SHELL=/bin/bash
+
+DJANGO_SETTINGS_MODULE=ksublock.settings
+VIRTUAL_ENV=/home/opencampus/openblock
+BUILT_IN_SCRAPERS=/home/opencampus/openblock/lib/python2.6/site-packages/ebdata/scrapers
+BINDIR=/home/opencampus/openblock/bin
+PYTHON=/home/opencampus/openblock/bin/python
+HTTP_CACHE=/tmp/openblockproject_scraper_cache
+CUSTOM_SCRAPERS=/home/opencampus/openblock/src/ksublock/ksublock/scrapers
+
+# Format:
+# m  h dom mon dow user   command
+
+######################################################################
+# Email alerts.
+@daily opencampus $BINDIR/send_alerts  --frequency daily -v
+@weekly opencampus $BINDIR/send_alerts --frequency weekly -v
+
+######################################################################
+# Aggregates. Update every few minutes.
+*/6 * * * *  opencampus $BINDIR/update_aggregates -q
+
+######################################################################
+# Background tasks.
+# We re-start the task runner every 10 minutes just in case anything
+# goes wrong.  It's fine if one run overlaps with the next.
+*/10 * * * *  opencampus /usr/bin/env DJANGO_SETTINGS_MODULE=ksublock.settings_background $BINDIR/django-admin.py process_tasks --duration=600 --log-std --log-level=ERROR --traceback --log-file=/var/log/opencampus/background-tasks.log
+
+######################################################################
+# Examples of scraper configuration.
+# Set API keys in your $DJANGO_SETTINGS_MODULE and uncomment these,
+# or add other scrapers.
+# See "Running Scrapers" in the OpenBlock docs.
+
+# cron jobs for scrapers
+@daily opencampus $PYTHON $CUSTOM_SCRAPERS/flickr_retrieval.py --quiet
+@daily opencampus $PYTHON $CUSTOM_SCRAPERS/ksc_scrape.py
+@daily opencampus $PYTHON $CUSTOM_SCRAPERS/YouTube_Scraper.py
+
+@hourly opencampus $PYTHON $CUSTOM_SCRAPERS/news_rss.py
+@hourly opencampus $PYTHON $CUSTOM_SCRAPERS/twitDeals.py
+@hourly opencampus $PYTHON $CUSTOM_SCRAPERS/twitEvents.py
+@hourly opencampus $PYTHON $CUSTOM_SCRAPERS/photo_o_day_scraper.py
+
+# Meetup scraper is a bit slow due to hitting rate limits.
+# Several times a day should be OK.
+#0 0,8,16 * * * openblock $PYTHON $SCRAPERS/general/meetup/meetup_retrieval.py --quiet

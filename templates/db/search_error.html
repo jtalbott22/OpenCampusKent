@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% load eb mapping %}
+
+{% block title %}Search: {{ query }}{% endblock %}
+
+{% block content %}
+<div id="content">
+
+<style>
+#detailmap {display:none;}
+.schema-list {
+	padding-top: 40px;
+}
+</style>
+<h1>Search results for "{{ query }}"</h1>
+	<div class="result">
+	{% if search_results %}
+		{% regroup search_results by schema as newsitem_list_byschema %}
+		{% for schemagroup in newsitem_list_byschema %}
+			<div class="happening">
+
+					<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Campus</span> <small>{{ schemagroup.grouper.plural_name }}</small></h1>
+						{% for newsitem in schemagroup.list %}
+							<div class="home-feed row">
+								<div class="span1">
+									<p class="latest-schema"><a href="{{ newsitem.item_url}}"><img class="schema-icon" src="{{ newsitem.schema.map_icon_url }}" alt="Videos icon"></a></p>
+									<p class="latest-month">{{ newsitem.item_date|date:"M" }}</p>
+									<p class="latest-day">{{ newsitem.item_date|date:"d" }}</p>
+								</div>
+
+								<div class="span6">
+									<h4 style="padding-bottom:4px;"><a href="{{ newsitem.item_url}}">{{ newsitem.title|truncatewords_html:10 }}</a></h4>
+
+									{% if newsitem.attributes.photo_href %}
+										<a class="pull-left" href="{{ newsitem.item_url }}" rel="nofollow" style="padding-right:4px;"><img width="75" height="75" class="thumbnail" src="{{ newsitem.attributes.photo_href }}" alt=""></a>
+									{% endif %}
+
+									<p>{% if newsitem.description %}{{ newsitem.description|truncatewords_html:25}}{% endif %}</p>
+								</div>
+							</div>
+						{% endfor %}
+				</div>
+		{% endfor %}
+	{% else %}
+		<p>We haven't found any news matching your search terms.</p>
+	{% endif %}
+
+	</div>
+
+	<h1>Location not found</h1>
+	<p>No results for <strong>{{ query }}</strong></p>
+	<h3>Here are some things you might want to try&hellip;</h3>
+	<ul>
+		<li>Navigate our <a href="/streets/">full list of streets</a> to find news for an individual block.</li>
+		<li>Find a {% for locationtype in locationtype_list %}{% if forloop.last %} or {% endif %}<a href="{{ locationtype.url }}">{{ locationtype.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}.</li>
+	</ul>
+	<h3>Or try another address search in {% METRO_NAME %}&hellip;</h3>
+	<form action="/search/" method="get">
+		<p><input type="text" name="q" value="{{ query }}"> <input type="submit" value="Search again"></p>
+	</form>
+</div><!--/ #content-->
+{% endblock %}

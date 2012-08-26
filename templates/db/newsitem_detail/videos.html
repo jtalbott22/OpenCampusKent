@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% load eb humanize mapping eb_filter comments %}
+{% load twitterize %}
+{% load twittertag %}
+{% block title %}{{ newsitem.title }} | {{ newsitem.schema.plural_name|capfirst }}{% endblock %}
+
+{% block content %}
+
+<div class="container row" id="content">
+	<div class="row">
+		<div class="span13">
+		<h1><img class="schema-icon" align="middle" src="{{ newsitem.schema.map_icon_url }}" alt="Videos icon">{% if newsitem.schema.is_special_report %}Special report: {% endif %}{{ newsitem.schema.name|capfirst }}:{{ newsitem.title }}</h1>
+    <hr>
+
+								<div class="video-content" style="width:520px; float:left;">
+                                <div class="video" style="float:left;"><iframe width="520" height="415" src="http://www.youtube.com/embed/{{ newsitem.attributes.videoID }}" frameborder="0" allowfullscreen></iframe></div>
+                                {% autoescape off %}<p>{{ newsitem.description|urlize|twitterize|twittertag }}...<a href="{{newsitem.url}}" target="_blank">Watch on YouTube>></a></p></div>{% endautoescape %}
+                                
+	<div class="span12" style="width:400px; height:315px;">
+	<table align="center" style="height:315px; margin-top:50px;">
+		<tr>
+			<th style="text-align:left; color:#006;">Location:</th>
+			<td style="text-align: right;">
+				{% if location_url %}<a href="{{ location_url }}">{% endif %}
+                                {{newsitem.location_name|default:"unknown"}}
+                                {% if location_url %}</a>{% endif %}
+				{% if not newsitem.location %}<p>This location couldn't be mapped.</p>{% endif %}
+			</td>
+		</tr>
+		{% block newsitem_detail_date %}
+			<tr>
+				<th style="text-align: left; color:#006;">{{ newsitem.schema.date_name|capfirst }}:</th>
+				<td style="text-align: right;"><a href="{{ newsitem.item_date_url }}">{{ newsitem.item_date|date:"F j, Y" }}</a></td>
+			</tr>
+		{% endblock %}
+		{% block newsitem_detail_description %}
+			<tr>
+				<th style="text-align: left; color:#006;">Search Term:</th>
+				<td style="text-align: right;"> <a href="/search/?q={{ newsitem.attributes.searchTerm}}">{{ newsitem.attributes.searchTerm}}</a></td>
+			</tr>
+			<tr>
+				<th style="text-align: left; color:#006;">Source:</th>
+				<td style="text-align: right;">{% if newsitem.url %}
+				    <a href="{{newsitem.url}}" target="_blank">Visit YouTube Page</a>
+				  {% endif %}
+				</td>
+			</tr>
+		{% endblock %}
+		
+	</table>
+	</div>
+<div class="row">    
+</div>                                
+
+	{% block newsitem_detail_summary %}{% endblock %}
+
+	<div id="mapwrapper">
+	  <script type="text/javascript">
+	  {% autoescape off %}
+
+	  function loadMap() {
+		  var config = {{map_configuration}};
+      config.center = [{{map_center_x}}, {{map_center_y}}];
+      config.zoom = 16;
+      return new OBMap(config);
+		}
+
+		{% endautoescape %}
+	  </script>
+{#	  {% include "richmaps/richmap.html" %} #}
+	</div>
+</div>
+</div>
+
+
+  {% block extracontent %}
+  {% endblock %}
+
+	<p>Retrieved on <strong>{{ newsitem.pub_date|date:"F j, Y" }}</strong>.</p>
+
+	{% block item_comments %}
+	<div class="row">
+	<div class="span4">
+	  {% if newsitem.schema.allow_comments %}
+	  {% get_comment_count for newsitem as comment_count %}
+	  <h2>{{comment_count}} Comments</h2>
+
+	  <div class="comment-list">
+    {% get_comment_list for newsitem as comment_list %}
+    {% for comment in comment_list %}
+        <div id="c{{comment.id}}" class="comment">
+          <div class="comment-text">{{ comment.comment }}</div>
+          <span class="comment-author">by {{ comment.name }}</span>
+          <span class="comment-date">{{comment.submit_date}}</span>
+          {% comment %}<a class="comment-flag-link" href="{% url comments-flag comment.id %}">flag this comment</a>{%endcomment%}
+        </div>
+    {% endfor %}
+    </div>
+
+
+    {% if request.user.is_authenticated %}
+	  <h2> Add a Comment </h2>
+	  {% get_comment_form for newsitem as form %}
+
+      <form id="comment-form" action="{% comment_form_target %}" method="post">
+        {% csrf_token %}
+        {{form.content_type}}
+        {{form.object_pk}}
+        {{form.timestamp}}
+        {{form.security_hash}}
+
+        <label for="id_comment">{{form.comment.label_tag}}</label>
+        <div>
+          {{form.comment}}
+        </div>
+
+        <div class="hidden">
+          If this field is filled in, the comment will be rejected as spam.</td>
+          {{form.honeypot}}
+        </div>
+
+        <div>
+              <input type="submit" name="submit" value="Post">
+        </div>
+    </form>
+    {% endif %}
+	  {% endif %}
+	</div>
+	{% endblock %}
+
+
+	{% block similaritems %}
+		{% if not newsitem.schema.is_special_report %}
+			{% if locations_within %}
+			<div class="span4">
+				<h2>Other {{ newsitem.schema.plural_name }} nearby</h2>
+				<ul>
+					{% for location in locations_within %}
+					<li><a href="{% filter_url newsitem.schema +'location' location %}">{{ location.name }}</a></li>
+					{% endfor %}
+					<li><a href="{{ newsitem.schema.url }}">More {{ newsitem.schema.plural_name }} in {% METRO_NAME %}</a></li>
+				</ul>
+			</div>
+			{% endif %}
+		{% endif %}
+	{% endblock %}
+
+	<div class="span4">
+	<h2>About {{ schema.plural_name }}...</h2>
+	<ul class="inlinelist">
+	  {% if newsitem.schema.summary.strip %}
+	  <li>Summary: {{ newsitem.schema.summary|safe|linebreaks }}</li>
+	  {% endif %}
+	  {% if newsitem.schema.source.strip %}
+	  {% with newsitem.schema.source.splitlines as sources %}
+		<li>Source{{sources|pluralize}}:
+		{% for source in sources %}
+		   {% if source.strip %}
+		   <a href="{{ source.strip|safe }}">{{source}}
+		   </a>
+		   {% endif %}
+		{% endfor %}
+	  {% endwith %}
+	{% endif %}
+	</ul>
+</div>
+</div>
+</div><!--/ #content-->
+
+{% endblock %}

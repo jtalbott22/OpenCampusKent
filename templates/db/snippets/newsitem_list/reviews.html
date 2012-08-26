@@ -1,0 +1,43 @@
+{# This snippet requires these variables: schema, newsitem_list #}
+
+<div class="reviews-schema-content">
+		<div class="row mainContent">
+			<div class="span7 happening">
+				<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Campus</span> <small>top reviews</small></h1>
+				{% for newsitem in newsitem_list %}
+				<div class="home-feed row">
+					<div class="span1">
+						<p class="latest-schema"><a href="{{newsitem.url}}" target="_blank"><img class="schema-icon" src="{{ newsitem.schema.map_icon_url }}" alt="Reviews icon"></a></p>
+						<p class="latest-month">{{ newsitem.item_date|date:"M" }}</p>
+						<p class="latest-day">{{ newsitem.item_date|date:"d" }}</p>
+					</div>
+
+					<div class="span6">
+						<h4 style="padding-bottom:4px;"><a href="{{newsitem.url}}" target="_blank">{{ newsitem.title|truncatewords_html:10 }}</a></h4>
+
+						{% if newsitem.attributes.photo_href %}
+							<a class="pull-left" href="{{newsitem.url}}" target="_blank" rel="nofollow" style="padding-right:4px;"><img width="75" height="75" class="thumbnail" src="{{ newsitem.attributes.photo_href }}" alt=""></a>
+						{% endif %}
+
+						<p>{% if newsitem.description %}{{ newsitem.description|truncatewords_html:25}}{% endif %}</p>
+					</div>
+				</div>
+                <hr>
+				{% endfor %}
+			</div>
+
+			<div class="span4">
+<h1 class="openBrand page-header"><span class="blue">open</span><span class="orange">Reviews</span> <small>featured review</small></h1>
+                {% for newsitem in newsitem_list %}
+                {% if forloop.first %}
+                <h4 style="padding-bottom:4px;"><a href="{{newsitem.url}}" target="_blank">{{ newsitem.title|truncatewords_html:10 }}</a></h4>
+                <p>{% if newsitem.description %}{{ newsitem.description|truncatewords_html:25}}{% endif %}</p>
+				<a href="{{newsitem.url}}" target="_blank" class="pull-left">Read more >></a>
+                {% endif %}
+                {% endfor %}
+			</div>
+
+		</div>
+
+		<hr>
+	</div>

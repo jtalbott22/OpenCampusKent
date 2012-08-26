@@ -1,0 +1,9 @@
+<div class="popup-content">
+  <div>{% if newsitem.attributes.photo_href %}<a class="photo pull-left" href="{{ newsitem.item_url }}" rel="nofollow"><img width="75" height="75" class="thumbnail" src="{{ newsitem.attributes.photo_href }}" alt=""></a>{% endif %}</div>
+  <h6 class="title">
+    {% if newsitem.item_url %}<a href="{{newsitem.item_url}}">{{newsitem.title|truncatewords_html:10}}</a>
+    {% else %}{{ newsitem.title }}{% endif %}
+  </h6>
+  <div class="date">{{ newsitem.item_date|date:"M j" }}</div>
+  <div class="description">{{newsitem.description|truncatewords_html:15}}</div>
+</div>
